@@ -160,19 +160,45 @@ while results_count < max_results:
 # Output matching jobs as JSON and save to file
 if matching_jobs:
     print(json.dumps(matching_jobs, indent=2, ensure_ascii=False))
-    with open("genai_jobs_results.json", "w", encoding="utf-8") as f:
-        json.dump(matching_jobs, f, ensure_ascii=False, indent=2)
-    # Save to CSV
+
+    # --- JSON APPEND LOGIC ---
+    json_path = "genai_jobs_results.json"
+    existing_json = []
+    if os.path.exists(json_path):
+        with open(json_path, "r", encoding="utf-8") as f:
+            try:
+                existing_json = json.load(f)
+            except Exception:
+                existing_json = []
+    # Avoid duplicates by URL
+    existing_urls = {job.get("url") for job in existing_json}
+    new_jobs_json = [job for job in matching_jobs if job.get("url") not in existing_urls]
+    all_jobs_json = existing_json + new_jobs_json
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(all_jobs_json, f, ensure_ascii=False, indent=2)
+
+    # --- CSV APPEND LOGIC ---
     csv_fields = ["title", "company", "location", "description", "url", "email", "phone", "contact_person"]
-    with open("genai_jobs_results.csv", "w", encoding="utf-8", newline="") as csvfile:
+    csv_path = "genai_jobs_results.csv"
+    existing_urls_csv = set()
+    file_exists = os.path.exists(csv_path)
+    if file_exists:
+        with open(csv_path, "r", encoding="utf-8", newline="") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                existing_urls_csv.add(row.get("url"))
+    new_jobs_csv = [job for job in matching_jobs if job.get("url") not in existing_urls_csv]
+    write_header = not file_exists or os.stat(csv_path).st_size == 0
+    with open(csv_path, "a", encoding="utf-8", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=csv_fields)
-        writer.writeheader()
-        for job in matching_jobs:
+        if write_header:
+            writer.writeheader()
+        for job in new_jobs_csv:
             writer.writerow(job)
-    print("[DEBUG] Results saved to genai_jobs_results.csv and genai_jobs_results.json")
+    print("[DEBUG] Results appended to genai_jobs_results.csv and genai_jobs_results.json")
 else:
     print(json.dumps({"error": "No jobs found matching all required skills"}))
 
 # Keep browser open until user input (for debugging)
-input("Press Enter to close the browser")
+#input("Press Enter to close the browser")
 driver.quit()

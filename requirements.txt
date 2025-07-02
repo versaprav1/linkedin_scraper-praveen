@@ -3,3 +3,6 @@ requests
 lxml
 python-dotenv
 pandas
+schedule
+gspread
+google-auth
