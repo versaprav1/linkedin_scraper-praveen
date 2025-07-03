@@ -5,12 +5,13 @@ import os
 
 CSV_FILE = 'genai_jobs_results.csv'
 EXCEL_FILE = 'genai_jobs_results.xlsx'
-GOOGLE_SHEET_NAME = 'YOUR_GOOGLE_SHEET_NAME'  # <-- Change this to your actual Google Sheet name
+GOOGLE_SHEET_NAME = 'linkedinjobsCsv'  # <-- Change this to your actual Google Sheet name
 CREDENTIALS_FILE = 'credentials.json'
 
 # Convert CSV to Excel
 if os.path.exists(CSV_FILE):
     df = pd.read_csv(CSV_FILE)
+    df = df.fillna('')  # Replace NaN with empty string
     df.to_excel(EXCEL_FILE, index=False)
     print(f"[INFO] Saved Excel file: {EXCEL_FILE}")
 else:

@@ -11,14 +11,39 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import csv
 load_dotenv()
-# Use headless mode to avoid opening a browser window
+
+# =============================
+# Option 1: Default Chrome Driver (current)
+# =============================
 chrome_options = Options()
 # chrome_options.add_argument("--headless")
-
-# Specify ChromeDriver path using Service
-#service = Service("D:\versa\project_Files\linkedin_scraper\chromedriver-win64\chromedriver.exe")
+#service = Service("D:/versa/project_Files/linkedin_scraper/chromedriver-win64/chromedriver.exe")
 service = Service("D:/versa/project_Files/linkedin_scraper/chromedriver-win64/chromedriver.exe")
 driver = webdriver.Chrome(service=service, options=chrome_options)
+
+# =============================
+# Option 2: Undetected ChromeDriver (Uncomment to use)
+# =============================
+# import undetected_chromedriver as uc
+# chrome_options = uc.ChromeOptions()
+# chrome_options.add_argument("--headless")  # Optional: run headless
+# driver = uc.Chrome(options=chrome_options)
+
+# =============================
+# Option 3: Load Cookies from File (Uncomment to use)
+# =============================
+# After logging in manually, export your cookies to 'cookies.json' using a browser extension.
+# Then, before navigating to LinkedIn, load cookies as shown below:
+#
+# driver.get("https://www.linkedin.com")
+# import json
+# with open("cookies.json", "r") as f:
+#     cookies = json.load(f)
+# for cookie in cookies:
+#     # Remove 'sameSite' if present, as Selenium may not accept it
+#     cookie.pop('sameSite', None)
+#     driver.add_cookie(cookie)
+# driver.refresh()
 
 # Login using environment variables
 email = os.getenv("LINKEDIN_USER")
